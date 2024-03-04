@@ -180,6 +180,10 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# Turborepo
+
+.turbo
+
 ### Node Patch ###
 # Serverless Webpack directories
 .webpack/
