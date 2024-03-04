@@ -3,8 +3,7 @@ name: Snapshot
 on: workflow_dispatch
 
 jobs:
-  release:
-    name: Publish snapshot version
+  snapshot:
     runs-on: ubuntu-latest
     env:
       CI: true
