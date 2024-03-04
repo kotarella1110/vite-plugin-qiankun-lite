@@ -22,13 +22,17 @@
     "preview": "turbo run preview",
     "check": "biome check .",
     "fix": "biome check --apply .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "copy-readme-to-packages": "tsx scripts/copy-readme-to-packages",
+    "prepare-release": "pnpm copy-readme-to-packages && pnpm build",
+    "release": "pnpm prepare-release && changeset publish"
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
     "@changesets/changelog-github": "^0.5.0",
     "@changesets/cli": "^2.27.1",
+    "fast-glob": "^3.3.2",
     "tsup": "^8.0.2",
+    "tsx": "^4.7.1",
     "turbo": "^1.12.4",
     "typescript": "^5.3.3",
     "unbuild": "^2.0.0",
