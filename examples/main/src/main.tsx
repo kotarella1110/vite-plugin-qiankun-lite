@@ -30,21 +30,21 @@ const loader = (loading: boolean) => render({ loading });
 registerMicroApps(
   [
     {
-      name: "react",
+      name: "react-app",
       entry: "http://localhost:8001",
       container: "#sub-app",
       activeRule: "/react",
       loader,
     },
     {
-      name: "vue",
+      name: "vue-app",
       entry: "http://localhost:8002",
       container: "#sub-app",
       activeRule: "/vue",
       loader,
     },
     {
-      name: "svelte",
+      name: "svelte-app",
       entry: "http://localhost:8003",
       container: "#sub-app",
       activeRule: "/svelte",
