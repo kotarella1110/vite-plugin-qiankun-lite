@@ -1,6 +1,6 @@
 # vite-plugin-qiankun-lite
 
-A simple Vite plugin for efficiently running MicroFrontend applications using qiankun.
+A simple Vite plugin for efficiently running MicroFrontend applications using [qiankun](https://github.com/umijs/qiankun).
 
 ## Features
 
