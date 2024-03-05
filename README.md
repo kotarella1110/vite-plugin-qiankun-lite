@@ -4,11 +4,11 @@ A simple Vite plugin for efficiently running MicroFrontend applications using [q
 
 ## Features
 
-- Provides the most straightforward approach to running qiankun with Vite.
-- Preserves the advantages of Vite in building ES modules.
-- One-click configuration without affecting existing Vite configurations.
-- Supports Vite development environment.
-- Offers a comprehensive JS Sandbox wherever possible (experimental).
+- Offers the simplest method for integrating qiankun with Vite.
+- Preserves Vite's benefits in constructing ES modules.
+- Allows for one-click configuration without disrupting existing Vite setups.
+- Includes a comprehensive JS Sandbox whenever feasible (experimental).
+- Supports React's HMR (Hot Module Replacement).
 
 ## Installation
 
@@ -41,7 +41,7 @@ This plugin is primarily inspired by [vite-plugin-qiankun](https://github.com/te
 
 ## Inspiration
 
-In the development of this plugin, we drew significant inspiration from the following projects and communities. We express our heartfelt gratitude.
+In the development of this plugin, I drew significant inspiration from the following projects and communities. I express my heartfelt gratitude.
 
 - [vite-plugin-qiankun](https://github.com/tengmaoqing/vite-plugin-qiankun)
 - [@sh-winter/vite-plugin-qiankun](https://github.com/sh-winter/vite-plugin-qiankun)
