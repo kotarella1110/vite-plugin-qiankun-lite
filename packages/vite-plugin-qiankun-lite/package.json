@@ -1,0 +1,54 @@
+{
+  "name": "vite-plugin-qiankun-lite",
+  "version": "0.0.0",
+  "description": "A simple Vite plugin for efficiently running MicroFrontend applications using qiankun",
+  "author": {
+    "name": "Kotaro Sugawara",
+    "email": "kotarella1110@gmail.com"
+  },
+  "keywords": [
+    "qiankun",
+    "micro frontend",
+    "microfrontend",
+    "micro frontends",
+    "microfrontends",
+    "micro-frontend",
+    "micro-frontends",
+    "microservice",
+    "typescript",
+    "vite",
+    "vite-plugin",
+    "vite-plugin-qiankun",
+    "vite-plugin-qiankun-lite"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kotarella1110/vite-plugin-qiankun-lite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kotarella1110/vite-plugin-qiankun-lite/issues"
+  },
+  "homepage": "https://github.com/kotarella1110/vite-plugin-qiankun-lite#readme",
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild"
+  },
+  "dependencies": {
+    "acorn": "^8.11.3",
+    "cheerio": "1.0.0-rc.12",
+    "magic-string": "^0.30.8"
+  }
+}
