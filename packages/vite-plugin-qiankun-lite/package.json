@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-qiankun-lite",
   "version": "0.0.0",
-  "description": "A Vite plugin for efficiently building MicroFrontend applications using qiankun",
+  "description": "A simple Vite plugin for efficiently running MicroFrontend applications using qiankun",
   "author": {
     "name": "Kotaro Sugawara",
     "email": "kotarella1110@gmail.com"
