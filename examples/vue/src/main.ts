@@ -1,9 +1,9 @@
-import { createApp } from "vue";
+import { type App as AppType, createApp } from "vue";
 import { name } from "../package.json";
 import App from "./App.vue";
 import "./style.css";
 
-let app: App | null = null;
+let app: AppType | null = null;
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 const render = (props: any = {}) => {
