@@ -3,65 +3,11 @@ import { type Cheerio, type Element, load } from "cheerio";
 import MagicString from "magic-string";
 import type { PluginOption, ResolvedConfig } from "vite";
 
-type PluginFn = (qiankunName: string) => PluginOption;
-
-declare module "acorn" {
-  interface Token {
-    value?: string;
-  }
-}
-
-const convertVariable = (code: string, from: string, to: string) => {
-  const s = new MagicString(code);
-  const tokens = tokenizer(code, {
-    ecmaVersion: "latest",
-    sourceType: "module",
-    allowHashBang: true,
-    allowAwaitOutsideFunction: true,
-    allowImportExportEverywhere: true,
-  });
-  for (const token of tokens) {
-    if (token.value === from && ![".", '"', "'"].includes(code[token.start])) {
-      s.overwrite(token.start, token.end, to);
-    }
-  }
-  return s.toString();
+type Options = {
+  name: string;
 };
 
-const moduleScriptToGeneralScript = (
-  script$: Cheerio<Element>,
-  publicPath: string,
-) => {
-  const scriptSrc = script$.attr("src");
-  if (!scriptSrc) return;
-  script$
-    .removeAttr("src")
-    .removeAttr("type")
-    .html(`import(${publicPath} + "${scriptSrc}")`);
-  return script$;
-};
-
-const reactRefreshModuleScriptToGeneralScript = (
-  script$: Cheerio<Element>,
-  reactRefreshImportPath: string,
-) => {
-  script$
-    .removeAttr("type")
-    .empty()
-    .html(`
-    ((window) => {
-      import(${reactRefreshImportPath}).then(({ default: RefreshRuntime }) => {
-        RefreshRuntime.injectIntoGlobalHook(window);
-        window.$RefreshReg$ = () => {};
-        window.$RefreshSig$ = () => (type) => type;
-        window.__vite_plugin_react_preamble_installed__ = true;
-      });
-    })(new Function("return this")());
-  `);
-  return script$;
-};
-
-const qiankunPlugin: PluginFn = (qiankunName) => {
+export default function viteQiankun(opts: Options): PluginOption {
   let config: ResolvedConfig;
   let publicPath =
     '(window.proxy && window.proxy.__INJECTED_PUBLIC_PATH_BY_QIANKUN__ || "")';
@@ -190,11 +136,11 @@ const qiankunPlugin: PluginFn = (qiankunName) => {
         script$?.html(`
       const nativeGlobal = Function("return this")();
       nativeGlobal.__QIANKUN_WINDOW__ = (typeof window !== "undefined" ? (window.proxy || window) : {});
-      window["${qiankunName}"] = {};
+      window["${opts.name}"] = {};
       const lifecycleNames = ["bootstrap", "mount", "unmount", "update"];
       ${script$.html()}.then((lifecycleHooks) => {
         lifecycleNames.forEach((lifecycleName) =>
-          window["${qiankunName}"][lifecycleName].resolve(
+          window["${opts.name}"][lifecycleName].resolve(
             lifecycleHooks[lifecycleName],
           ),
         );
@@ -202,7 +148,7 @@ const qiankunPlugin: PluginFn = (qiankunName) => {
       lifecycleNames.forEach((lifecycleName) => {
         let resolve;
         const promise = new Promise((_resolve) => (resolve = _resolve));
-        window["${qiankunName}"][lifecycleName] = Object.assign(
+        window["${opts.name}"][lifecycleName] = Object.assign(
           (...args) => promise.then((lifecycleHook) => lifecycleHook(...args)),
           { resolve },
         );
@@ -212,6 +158,60 @@ const qiankunPlugin: PluginFn = (qiankunName) => {
       },
     },
   ];
-};
+}
 
-export default qiankunPlugin;
+declare module "acorn" {
+  interface Token {
+    value?: string;
+  }
+}
+
+function convertVariable(code: string, from: string, to: string) {
+  const s = new MagicString(code);
+  const tokens = tokenizer(code, {
+    ecmaVersion: "latest",
+    sourceType: "module",
+    allowHashBang: true,
+    allowAwaitOutsideFunction: true,
+    allowImportExportEverywhere: true,
+  });
+  for (const token of tokens) {
+    if (token.value === from && ![".", '"', "'"].includes(code[token.start])) {
+      s.overwrite(token.start, token.end, to);
+    }
+  }
+  return s.toString();
+}
+
+function moduleScriptToGeneralScript(
+  script$: Cheerio<Element>,
+  publicPath: string,
+) {
+  const scriptSrc = script$.attr("src");
+  if (!scriptSrc) return;
+  script$
+    .removeAttr("src")
+    .removeAttr("type")
+    .html(`import(${publicPath} + "${scriptSrc}")`);
+  return script$;
+}
+
+function reactRefreshModuleScriptToGeneralScript(
+  script$: Cheerio<Element>,
+  reactRefreshImportPath: string,
+) {
+  script$
+    .removeAttr("type")
+    .empty()
+    .html(`
+    ((window) => {
+      import(${reactRefreshImportPath}).then(({ default: RefreshRuntime }) => {
+        RefreshRuntime.injectIntoGlobalHook(window);
+        window.$RefreshReg$ = () => {};
+        window.$RefreshSig$ = () => (type) => type;
+        window.__vite_plugin_react_preamble_installed__ = true;
+      });
+    })(new Function("return this")());
+  `);
+  return script$;
+}

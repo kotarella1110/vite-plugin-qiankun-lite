@@ -5,7 +5,7 @@ import { name } from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svelte(), qiankun(name)],
+  plugins: [svelte(), qiankun({ name })],
   server: {
     cors: true,
     origin: "*",
