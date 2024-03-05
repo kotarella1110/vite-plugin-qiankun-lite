@@ -144,13 +144,11 @@ const qiankunPlugin: PluginFn = (qiankunName) => {
         )
           return code;
 
-        const qiankunWindow =
-          '(typeof window !== "undefined" ? (window.proxy || window) : {})';
         const varMap = {
-          document: `${qiankunWindow}.document`,
-          window: qiankunWindow,
-          globalThis: qiankunWindow,
-          self: qiankunWindow,
+          document: "__QIANKUN_WINDOW__.document",
+          window: "__QIANKUN_WINDOW__",
+          globalThis: "__QIANKUN_WINDOW__",
+          self: "__QIANKUN_WINDOW__",
         };
         for (const varName in varMap) {
           // biome-ignore lint/style/noParameterAssign: <explanation>
@@ -190,6 +188,8 @@ const qiankunPlugin: PluginFn = (qiankunName) => {
 
         const script$ = moduleTags.last();
         script$?.html(`
+      const nativeGlobal = Function("return this")();
+      nativeGlobal.__QIANKUN_WINDOW__ = (typeof window !== "undefined" ? (window.proxy || window) : {});
       window["${qiankunName}"] = {};
       const lifecycleNames = ["bootstrap", "mount", "unmount", "update"];
       ${script$.html()}.then((lifecycleHooks) => {
