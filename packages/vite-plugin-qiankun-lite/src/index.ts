@@ -91,10 +91,10 @@ export default function viteQiankun(opts: Options): PluginOption {
           return code;
 
         const varMap = {
-          document: "__QIANKUN_WINDOW__.document",
-          window: "__QIANKUN_WINDOW__",
-          globalThis: "__QIANKUN_WINDOW__",
-          self: "__QIANKUN_WINDOW__",
+          document: `__QIANKUN_WINDOW__["${opts.name}"].document`,
+          window: `__QIANKUN_WINDOW__["${opts.name}"]`,
+          globalThis: `__QIANKUN_WINDOW__["${opts.name}"]`,
+          self: `__QIANKUN_WINDOW__["${opts.name}"]`,
         };
         for (const varName in varMap) {
           // biome-ignore lint/style/noParameterAssign: <explanation>
@@ -121,6 +121,7 @@ export default function viteQiankun(opts: Options): PluginOption {
       },
       transformIndexHtml(html: string) {
         const $ = load(html);
+
         const moduleTags = $(
           'body script[src][type=module], head script[src][crossorigin=""]',
         );
@@ -135,7 +136,8 @@ export default function viteQiankun(opts: Options): PluginOption {
         const script$ = moduleTags.last();
         script$?.html(`
       const nativeGlobal = Function("return this")();
-      nativeGlobal.__QIANKUN_WINDOW__ = (typeof window !== "undefined" ? (window.proxy || window) : {});
+      nativeGlobal.__QIANKUN_WINDOW__ = nativeGlobal.__QIANKUN_WINDOW__ || {};
+      nativeGlobal.__QIANKUN_WINDOW__["${opts.name}"] = nativeGlobal.proxy || nativeGlobal;
       window["${opts.name}"] = {};
       const lifecycleNames = ["bootstrap", "mount", "unmount", "update"];
       ${script$.html()}.then((lifecycleHooks) => {
