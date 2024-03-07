@@ -6,6 +6,7 @@ exports[`unknown plugin > 1. console snapshot > 1. console snapshot 1`] = `
 console.log("window", window);
 console.log("document", document);
 console.log("self", self);
+console.log("process.env.TEST", process.env.TEST);
       
 
       ↓ ↓ ↓ ↓ ↓ ↓
@@ -13,56 +14,97 @@ console.log("self", self);
 console.log("window", __TEST__.window);
 console.log("document", __TEST__["test"].document);
 console.log("self", __TEST__.self);
+console.log("process.env.TEST", __TEST__.process.env.TEST);
 
 `;
 
-exports[`unknown plugin > 2. IIFE snapshot > 2. IIFE snapshot 1`] = `
+exports[`unknown plugin > 2. variable snapshot > 2. variable snapshot 1`] = `
 
 
-(function(window, document, self) {
+const window = "test";
+const document = "test";
+const self = "test";
+const process = {
+  env: {
+    TEST: "test",
+  },
+}
+window;
+document;
+self;
+process.env.TEST
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+const window = "test";
+const document = "test";
+const self = "test";
+const process = {
+  env: {
+    TEST: "test",
+  },
+};
+window;
+document;
+self;
+process.env.TEST;
+
+`;
+
+exports[`unknown plugin > 3. IIFE snapshot > 3. IIFE snapshot 1`] = `
+
+
+(function(window, document, self, process) {
   window;
   document;
   self;
+  process.env.TEST;
 })(window, document, self);
       
 
       ↓ ↓ ↓ ↓ ↓ ↓
 
-(function (window, document, self) {
+(function (window, document, self, process) {
   window;
   document;
   self;
+  process.env.TEST;
 })(__TEST__.window, __TEST__["test"].document, __TEST__.self);
 
 `;
 
-exports[`unknown plugin > 3. function snapshot > 3. function snapshot 1`] = `
+exports[`unknown plugin > 4. function snapshot > 4. function snapshot 1`] = `
 
 
-function test(window, document, self) {
+function test(window, document, self, process) {
   window;
   document;
   self;
+  process.env.TEST;
 }
 window;
 document;
 self;
+process.env.TEST;
       
 
       ↓ ↓ ↓ ↓ ↓ ↓
 
-function test(window, document, self) {
+function test(window, document, self, process) {
   window;
   document;
   self;
+  process.env.TEST;
 }
 __TEST__.window;
 __TEST__["test"].document;
 __TEST__.self;
+__TEST__.process.env.TEST;
 
 `;
 
-exports[`unknown plugin > 4. function invocation snapshot > 4. function invocation snapshot 1`] = `
+exports[`unknown plugin > 5. function invocation snapshot > 5. function invocation snapshot 1`] = `
 
 
 function window() {}
@@ -84,7 +126,7 @@ self();
 
 `;
 
-exports[`unknown plugin > 5. allow function invocation snapshot > 5. allow function invocation snapshot 1`] = `
+exports[`unknown plugin > 6. allow function invocation snapshot > 6. allow function invocation snapshot 1`] = `
 
 
 const window = () => {};
@@ -106,7 +148,7 @@ self();
 
 `;
 
-exports[`unknown plugin > 6. event listener snapshot > 6. event listener snapshot 1`] = `
+exports[`unknown plugin > 7. event listener snapshot > 7. event listener snapshot 1`] = `
 
 
 window.addEventListener("xxx", () => {});
@@ -122,13 +164,14 @@ __TEST__.self.addEventListener("xxx", () => {});
 
 `;
 
-exports[`unknown plugin > 7. object literal snapshot > 7. object literal snapshot 1`] = `
+exports[`unknown plugin > 8. object literal snapshot > 8. object literal snapshot 1`] = `
 
 
 const test1 = {
   window: window,
   document: document,
   self: self,
+  "process.env.TEST": process.env.TEST,
 };
 const test2 = {
   window,
@@ -143,11 +186,32 @@ const test1 = {
   window: __TEST__.window,
   document: __TEST__["test"].document,
   self: __TEST__.self,
+  "process.env.TEST": __TEST__.process.env.TEST,
 };
 const test2 = {
   window: __TEST__.window,
   document: __TEST__["test"].document,
   self: __TEST__.self,
 };
+
+`;
+
+exports[`unknown plugin > 9. import statement snapshot > 9. import statement snapshot 1`] = `
+
+
+import window, { document, self, process } from "test";
+window;
+document;
+self;
+process.env.TEST
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import window, { document, self, process } from "test";
+window;
+document;
+self;
+process.env.TEST;
 
 `;

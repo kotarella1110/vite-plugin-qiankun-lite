@@ -83,14 +83,20 @@ export default function viteQiankun(opts: Options): PluginOption {
           /\.svelte$/,
         ];
         if (
-          filename.includes("node_modules/vite/dist/client/env.mjs") ||
-          !jsExts.some((reg) => reg.test(id)) ||
+          !jsExts.some((reg) => reg.test(filename)) ||
           !/(document|window|globalThis|self)/g.test(code)
         )
           return code;
 
         return transformGlobalVariables(code, {
           replace: {
+            ...Object.keys(config.define ?? []).reduce(
+              (acc, key) => {
+                acc[key] = `__QIANKUN_WINDOW__["${opts.name}"].${key}`;
+                return acc;
+              },
+              {} as Record<string, string>,
+            ),
             document: `__QIANKUN_WINDOW__["${opts.name}"].document`,
             window: `__QIANKUN_WINDOW__["${opts.name}"]`,
             globalThis: `__QIANKUN_WINDOW__["${opts.name}"]`,
