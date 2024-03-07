@@ -169,8 +169,20 @@ exports[`unknown plugin > 8. object literal snapshot > 8. object literal snapsho
 
 const test1 = {
   window: window,
+  get window() {
+    return window;
+  },
+  set window(window) {},
   document: document,
+  get document() {
+    return document;
+  },
+  set document(document) {},
   self: self,
+  get self() {
+    return self;
+  },
+  set self(self) {},
   "process.env.TEST": process.env.TEST,
 };
 const test2 = {
@@ -184,8 +196,20 @@ const test2 = {
 
 const test1 = {
   window: __TEST__.window,
+  get window() {
+    return __TEST__.window;
+  },
+  set window(window) {},
   document: __TEST__["test"].document,
+  get document() {
+    return __TEST__["test"].document;
+  },
+  set document(document) {},
   self: __TEST__.self,
+  get self() {
+    return __TEST__.self;
+  },
+  set self(self) {},
   "process.env.TEST": __TEST__.process.env.TEST,
 };
 const test2 = {

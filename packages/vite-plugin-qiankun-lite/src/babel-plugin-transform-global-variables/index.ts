@@ -46,7 +46,11 @@ function isReplaceableIdentifiers(
     replacement.some((replace) => replace.name === path.node.name) &&
     !path.scope.hasBinding(path.node.name) &&
     !path.parentPath.isMemberExpression({ property: path.node }) &&
-    !path.parentPath.isObjectProperty({ key: path.node })
+    !path.parentPath.isObjectProperty({ key: path.node }) &&
+    !path.parentPath.isObjectMethod({ key: path.node }) &&
+    !path.parentPath.isClassProperty({ key: path.node }) &&
+    !path.parentPath.isClassMethod({ key: path.node }) &&
+    !path.parentPath.isPrivateName({ id: path.node })
   );
 }
 
@@ -55,9 +59,6 @@ function isReplaceableMemberExpression(
   replacement: t.MemberExpression[],
 ) {
   const deepestExpression = getDeepestExpression(path);
-  if (deepestExpression.node.name === "process") {
-    console.log(deepestExpression.node);
-  }
   return (
     replacement.some((replace) =>
       isMatchingMemberExpression(path.node, replace),

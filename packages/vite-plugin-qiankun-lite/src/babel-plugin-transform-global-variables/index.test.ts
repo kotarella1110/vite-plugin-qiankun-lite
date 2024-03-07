@@ -98,8 +98,20 @@ pluginTester({
       code: `
         const test1 = {
           window: window,
+          get window() {
+            return window;
+          },
+          set window(window) {},
           document: document,
+          get document() {
+            return document;
+          },
+          set document(document) {},
           self: self,
+          get self() {
+            return self;
+          },
+          set self(self) {},
           "process.env.TEST": process.env.TEST,
         };
         const test2 = {
