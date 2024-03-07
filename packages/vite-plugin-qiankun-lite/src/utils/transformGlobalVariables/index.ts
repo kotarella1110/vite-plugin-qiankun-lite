@@ -1,0 +1,1 @@
+export { transformGlobalVariables } from "./transformGlobalVariables";

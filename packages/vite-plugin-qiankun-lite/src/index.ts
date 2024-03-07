@@ -1,7 +1,6 @@
-import { tokenizer } from "acorn";
 import { type Cheerio, type Element, load } from "cheerio";
-import MagicString from "magic-string";
 import type { PluginOption, ResolvedConfig } from "vite";
+import { transformGlobalVariables } from "./utils/transformGlobalVariables";
 
 type Options = {
   name: string;
@@ -9,8 +8,7 @@ type Options = {
 
 export default function viteQiankun(opts: Options): PluginOption {
   let config: ResolvedConfig;
-  let publicPath =
-    '(window.proxy && window.proxy.__INJECTED_PUBLIC_PATH_BY_QIANKUN__ || "")';
+  let publicPath = `(__QIANKUN_WINDOW__["${opts.name}"].__INJECTED_PUBLIC_PATH_BY_QIANKUN__ || "")`;
   return [
     {
       name: "qiankun:remain-exports",
@@ -90,22 +88,14 @@ export default function viteQiankun(opts: Options): PluginOption {
         )
           return code;
 
-        const varMap = {
-          document: `__QIANKUN_WINDOW__["${opts.name}"].document`,
-          window: `__QIANKUN_WINDOW__["${opts.name}"]`,
-          globalThis: `__QIANKUN_WINDOW__["${opts.name}"]`,
-          self: `__QIANKUN_WINDOW__["${opts.name}"]`,
-        };
-        for (const varName in varMap) {
-          // biome-ignore lint/style/noParameterAssign: <explanation>
-          code = convertVariable(
-            code,
-            varName,
-            varMap[varName as keyof typeof varMap],
-          );
-        }
-
-        return code;
+        return transformGlobalVariables(code, {
+          replace: {
+            document: `__QIANKUN_WINDOW__["${opts.name}"].document`,
+            window: `__QIANKUN_WINDOW__["${opts.name}"]`,
+            globalThis: `__QIANKUN_WINDOW__["${opts.name}"]`,
+            self: `__QIANKUN_WINDOW__["${opts.name}"]`,
+          },
+        });
       },
     },
     {
@@ -122,6 +112,14 @@ export default function viteQiankun(opts: Options): PluginOption {
       transformIndexHtml(html: string) {
         const $ = load(html);
 
+        $("head").prepend(`
+    <script>
+      const nativeGlobal = Function("return this")();
+      nativeGlobal.__QIANKUN_WINDOW__ = nativeGlobal.__QIANKUN_WINDOW__ || {};
+      nativeGlobal.__QIANKUN_WINDOW__["${opts.name}"] = nativeGlobal.proxy || nativeGlobal;
+    </script>
+        `);
+
         const moduleTags = $(
           'body script[src][type=module], head script[src][crossorigin=""]',
         );
@@ -135,9 +133,6 @@ export default function viteQiankun(opts: Options): PluginOption {
 
         const script$ = moduleTags.last();
         script$?.html(`
-      const nativeGlobal = Function("return this")();
-      nativeGlobal.__QIANKUN_WINDOW__ = nativeGlobal.__QIANKUN_WINDOW__ || {};
-      nativeGlobal.__QIANKUN_WINDOW__["${opts.name}"] = nativeGlobal.proxy || nativeGlobal;
       window["${opts.name}"] = {};
       const lifecycleNames = ["bootstrap", "mount", "unmount", "update"];
       ${script$.html()}.then((lifecycleHooks) => {
@@ -162,29 +157,6 @@ export default function viteQiankun(opts: Options): PluginOption {
   ];
 }
 
-declare module "acorn" {
-  interface Token {
-    value?: string;
-  }
-}
-
-function convertVariable(code: string, from: string, to: string) {
-  const s = new MagicString(code);
-  const tokens = tokenizer(code, {
-    ecmaVersion: "latest",
-    sourceType: "module",
-    allowHashBang: true,
-    allowAwaitOutsideFunction: true,
-    allowImportExportEverywhere: true,
-  });
-  for (const token of tokens) {
-    if (token.value === from && ![".", '"', "'"].includes(code[token.start])) {
-      s.overwrite(token.start, token.end, to);
-    }
-  }
-  return s.toString();
-}
-
 function moduleScriptToGeneralScript(
   script$: Cheerio<Element>,
   publicPath: string,
@@ -202,18 +174,15 @@ function reactRefreshModuleScriptToGeneralScript(
   script$: Cheerio<Element>,
   reactRefreshImportPath: string,
 ) {
-  script$
-    .removeAttr("type")
-    .empty()
-    .html(`
-    ((window) => {
-      import(${reactRefreshImportPath}).then(({ default: RefreshRuntime }) => {
-        RefreshRuntime.injectIntoGlobalHook(window);
-        window.$RefreshReg$ = () => {};
-        window.$RefreshSig$ = () => (type) => type;
-        window.__vite_plugin_react_preamble_installed__ = true;
-      });
-    })(new Function("return this")());
+  script$.removeAttr("type").html(`
+      ((window) => {
+        import(${reactRefreshImportPath}).then(({ default: RefreshRuntime }) => {
+          RefreshRuntime.injectIntoGlobalHook(window);
+          window.$RefreshReg$ = () => {};
+          window.$RefreshSig$ = () => (type) => type;
+          window.__vite_plugin_react_preamble_installed__ = true;
+        });
+      })(new Function("return this")());
   `);
   return script$;
 }
