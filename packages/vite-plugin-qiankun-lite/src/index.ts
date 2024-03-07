@@ -1,6 +1,7 @@
+import { transformSync } from "@babel/core";
 import { type Cheerio, type Element, load } from "cheerio";
 import type { PluginOption, ResolvedConfig } from "vite";
-import { transformGlobalVariables } from "./utils/transformGlobalVariables";
+import plugin from "./babel-plugin-transform-global-variables";
 
 type Options = {
   name: string;
@@ -155,6 +156,16 @@ export default function viteQiankun(opts: Options): PluginOption {
       },
     },
   ];
+}
+
+function transformGlobalVariables(
+  code: string,
+  options: Parameters<typeof plugin>[1],
+) {
+  const result = transformSync(code, {
+    plugins: [[plugin, options]],
+  });
+  return result?.code;
 }
 
 function moduleScriptToGeneralScript(

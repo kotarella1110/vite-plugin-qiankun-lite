@@ -1,0 +1,153 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`unknown plugin > 1. console snapshot > 1. console snapshot 1`] = `
+
+
+console.log("window", window);
+console.log("document", document);
+console.log("self", self);
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+console.log("window", __TEST__.window);
+console.log("document", __TEST__["test"].document);
+console.log("self", __TEST__.self);
+
+`;
+
+exports[`unknown plugin > 2. IIFE snapshot > 2. IIFE snapshot 1`] = `
+
+
+(function(window, document, self) {
+  window;
+  document;
+  self;
+})(window, document, self);
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+(function (window, document, self) {
+  window;
+  document;
+  self;
+})(__TEST__.window, __TEST__["test"].document, __TEST__.self);
+
+`;
+
+exports[`unknown plugin > 3. function snapshot > 3. function snapshot 1`] = `
+
+
+function test(window, document, self) {
+  window;
+  document;
+  self;
+}
+window;
+document;
+self;
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+function test(window, document, self) {
+  window;
+  document;
+  self;
+}
+__TEST__.window;
+__TEST__["test"].document;
+__TEST__.self;
+
+`;
+
+exports[`unknown plugin > 4. function invocation snapshot > 4. function invocation snapshot 1`] = `
+
+
+function window() {}
+function document() {}
+function self() {}
+window();
+document();
+self();
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+function window() {}
+function document() {}
+function self() {}
+window();
+document();
+self();
+
+`;
+
+exports[`unknown plugin > 5. allow function invocation snapshot > 5. allow function invocation snapshot 1`] = `
+
+
+const window = () => {};
+const document = () => {};
+const self = () => {};
+window();
+document();
+self();
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+const window = () => {};
+const document = () => {};
+const self = () => {};
+window();
+document();
+self();
+
+`;
+
+exports[`unknown plugin > 6. event listener snapshot > 6. event listener snapshot 1`] = `
+
+
+window.addEventListener("xxx", () => {});
+document.addEventListener("xxx", () => {});
+self.addEventListener("xxx", () => {});
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+__TEST__.window.addEventListener("xxx", () => {});
+__TEST__["test"].document.addEventListener("xxx", () => {});
+__TEST__.self.addEventListener("xxx", () => {});
+
+`;
+
+exports[`unknown plugin > 7. object literal snapshot > 7. object literal snapshot 1`] = `
+
+
+const test1 = {
+  window: window,
+  document: document,
+  self: self,
+};
+const test2 = {
+  window,
+  document,
+  self,
+};
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+const test1 = {
+  window: __TEST__.window,
+  document: __TEST__["test"].document,
+  self: __TEST__.self,
+};
+const test2 = {
+  window: __TEST__.window,
+  document: __TEST__["test"].document,
+  self: __TEST__.self,
+};
+
+`;

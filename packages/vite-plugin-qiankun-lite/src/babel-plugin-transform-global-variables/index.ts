@@ -1,4 +1,4 @@
-import { type NodePath, transformSync, types as t } from "@babel/core";
+import { type NodePath, types as t } from "@babel/core";
 import { declare } from "@babel/helper-plugin-utils";
 import { parse } from "@babel/parser";
 
@@ -6,14 +6,14 @@ type Options = {
   replace: Record<string, string>;
 };
 
-const babelPluginTransformGlobalVariables = declare<Options>((api, options) => {
-  const replacementIdentifiers = getReplacementIdentifiers(options.replace);
+export default declare<Options>((api, options) => {
+  const replacementExpressions = getReplacementExpressions(options.replace);
   return {
     visitor: {
       Identifier(path) {
-        if (isReplaceableIdentifier(path, replacementIdentifiers)) {
+        if (isReplaceableExpressions(path, replacementExpressions)) {
           const name = path.node.name;
-          const replacementIdentifier = replacementIdentifiers[name];
+          const replacementIdentifier = replacementExpressions[name];
           path.replaceWith(replacementIdentifier);
         }
       },
@@ -21,16 +21,9 @@ const babelPluginTransformGlobalVariables = declare<Options>((api, options) => {
   };
 });
 
-export function transformGlobalVariables(code: string, options: Options) {
-  const result = transformSync(code, {
-    plugins: [[babelPluginTransformGlobalVariables, options]],
-  });
-  return result?.code;
-}
-
-function isReplaceableIdentifier(
+function isReplaceableExpressions(
   path: NodePath<t.Identifier>,
-  identifiers: Record<string, t.Identifier | t.MemberExpression>,
+  identifiers: Record<string, t.Expression>,
 ) {
   return (
     // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
@@ -41,17 +34,17 @@ function isReplaceableIdentifier(
   );
 }
 
-function getReplacementIdentifiers(replace: Record<string, string>) {
+function getReplacementExpressions(replace: Record<string, string>) {
   return Object.keys(replace).reduce(
     (object, name) =>
       Object.assign(object, {
-        [name]: parseToMemberExpressionOrIdentifier(replace[name]),
+        [name]: parseToExpression(replace[name]),
       }),
-    {} as Record<string, t.Identifier | t.MemberExpression>,
+    {} as Record<string, t.Expression>,
   );
 }
 
-function parseToMemberExpressionOrIdentifier(code: string) {
+function parseToExpression(code: string) {
   const ast = parse(code);
   const statement = ast.program.body[0];
   if (!t.isExpressionStatement(statement)) {
@@ -61,5 +54,5 @@ function parseToMemberExpressionOrIdentifier(code: string) {
   if (t.isMemberExpression(expression) && t.isIdentifier(expression)) {
     throw new Error("Expected MemberExpression or Identifier");
   }
-  return expression as t.Identifier | t.MemberExpression;
+  return expression as t.Expression;
 }
