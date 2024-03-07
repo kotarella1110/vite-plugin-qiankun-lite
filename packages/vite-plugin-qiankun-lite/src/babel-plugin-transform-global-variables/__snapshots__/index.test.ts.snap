@@ -220,7 +220,59 @@ const test2 = {
 
 `;
 
-exports[`unknown plugin > 9. import statement snapshot > 9. import statement snapshot 1`] = `
+exports[`unknown plugin > 9. class snapshot > 9. class snapshot 1`] = `
+
+
+class Test {
+  #window
+  self
+  constructor(window, self, process) {
+    this.window = window;
+    this.self = self;
+    this.test = process.env.TEST;
+  }
+  document() {
+    return document;
+  }
+  self = () => {
+    return this.self;
+  }
+  get window() {
+    return this.#window;
+  }
+  set window(window) {
+    this.#window = window;
+  }
+}
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+class Test {
+  #window;
+  self;
+  constructor(window, self, process) {
+    this.window = window;
+    this.self = self;
+    this.test = process.env.TEST;
+  }
+  document() {
+    return __TEST__["test"].document;
+  }
+  self = () => {
+    return this.self;
+  };
+  get window() {
+    return this.#window;
+  }
+  set window(window) {
+    this.#window = window;
+  }
+}
+
+`;
+
+exports[`unknown plugin > 10. import statement snapshot > 10. import statement snapshot 1`] = `
 
 
 import window, { document, self, process } from "test";

@@ -122,6 +122,32 @@ pluginTester({
       `,
       snapshot: true,
     },
+    "class snapshot": {
+      code: `
+        class Test {
+          #window
+          self
+          constructor(window, self, process) {
+            this.window = window;
+            this.self = self;
+            this.test = process.env.TEST;
+          }
+          document() {
+            return document;
+          }
+          self = () => {
+            return this.self;
+          }
+          get window() {
+            return this.#window;
+          }
+          set window(window) {
+            this.#window = window;
+          }
+        }
+      `,
+      snapshot: true,
+    },
     "import statement snapshot": {
       code: `
         import window, { document, self, process } from "test";
