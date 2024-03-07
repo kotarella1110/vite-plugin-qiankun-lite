@@ -22,6 +22,7 @@
     "preview": "turbo run preview",
     "check": "biome check .",
     "fix": "biome check --apply .",
+    "test": "turbo run test",
     "copy-readme-to-packages": "tsx scripts/copy-readme-to-packages",
     "prepare-release": "pnpm copy-readme-to-packages && pnpm build",
     "release": "pnpm prepare-release && changeset publish"
@@ -36,6 +37,7 @@
     "turbo": "^1.12.4",
     "typescript": "^5.3.3",
     "unbuild": "^2.0.0",
-    "vite": "^5.1.4"
+    "vite": "^5.1.4",
+    "vitest": "^1.3.1"
   }
 }
