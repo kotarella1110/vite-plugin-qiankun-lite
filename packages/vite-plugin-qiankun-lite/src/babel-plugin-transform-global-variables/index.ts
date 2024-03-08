@@ -9,7 +9,7 @@ type Options = {
 
 export default declare<Options>((api, options) => {
   const replaces = Object.keys(options.replace).map((name) =>
-    parseToExpression(name),
+    parseToMemberExpressionOrIdentifier(name),
   );
   const replacementIdentifiers = replaces.filter(
     (replace): replace is t.Identifier => t.isIdentifier(replace),
@@ -58,13 +58,13 @@ function isReplaceableMemberExpression(
   path: NodePath<t.MemberExpression>,
   replacement: t.MemberExpression[],
 ) {
-  const deepestExpression = getDeepestExpression(path);
+  const deepestNodePath = getDeepestNodePath(path);
   return (
     replacement.some((replace) =>
       isMatchingMemberExpression(path.node, replace),
     ) &&
-    t.isIdentifier(deepestExpression.node) &&
-    !deepestExpression.scope.hasBinding(deepestExpression.node.name) &&
+    t.isIdentifier(deepestNodePath.node) &&
+    !deepestNodePath.scope.hasBinding(deepestNodePath.node.name) &&
     !path.parentPath.isMemberExpression({ object: path.node })
   );
 }
@@ -91,34 +91,38 @@ function isMatchingMemberExpression(
   return false;
 }
 
-function getDeepestExpression(path: NodePath<t.MemberExpression>) {
+function getDeepestNodePath(path: NodePath<t.MemberExpression>) {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  let deepestExpression: any = path;
-  while (deepestExpression.node.object) {
-    deepestExpression = deepestExpression.get("object");
+  let deepestNodePath: any = path;
+  while (deepestNodePath.node.object) {
+    deepestNodePath = deepestNodePath.get("object");
   }
-  return deepestExpression;
+  return deepestNodePath as NodePath<t.Node>;
 }
 
-function getReplacementExpressions(replace: Record<string, string>) {
+function getReplacementExpressions(
+  replace: Record<string, string>,
+): Record<string, t.MemberExpression | t.Identifier> {
   return Object.keys(replace).reduce(
     (object, name) =>
       Object.assign(object, {
-        [name]: parseToExpression(replace[name]),
+        [name]: parseToMemberExpressionOrIdentifier(replace[name]),
       }),
-    {} as Record<string, t.Expression>,
+    {} as Record<string, t.MemberExpression | t.Identifier>,
   );
 }
 
-function parseToExpression(code: string) {
+function parseToMemberExpressionOrIdentifier(
+  code: string,
+): t.MemberExpression | t.Identifier {
   const ast = parse(code);
   const statement = ast.program.body[0];
   if (!t.isExpressionStatement(statement)) {
     throw new Error("Expected ExpressionStatement");
   }
   const expression = statement.expression;
-  if (t.isMemberExpression(expression) && t.isIdentifier(expression)) {
+  if (!t.isMemberExpression(expression) && !t.isIdentifier(expression)) {
     throw new Error("Expected MemberExpression or Identifier");
   }
-  return expression as t.Expression;
+  return expression;
 }
