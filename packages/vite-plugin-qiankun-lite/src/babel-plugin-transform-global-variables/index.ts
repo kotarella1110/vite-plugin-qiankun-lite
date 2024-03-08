@@ -8,29 +8,30 @@ type Options = {
 };
 
 export default declare<Options>((api, options) => {
-  const replaces = Object.keys(options.replace).map((name) =>
-    parseToMemberExpressionOrIdentifier(name),
-  );
-  const replacementIdentifiers = replaces.filter(
-    (replace): replace is t.Identifier => t.isIdentifier(replace),
-  );
-  const replacementMemberExpressions = replaces.filter(
-    (replace): replace is t.MemberExpression => t.isMemberExpression(replace),
-  );
   const replacementExpressions = getReplacementExpressions(options.replace);
   return {
     visitor: {
       Identifier(path) {
-        if (isReplaceableIdentifiers(path, replacementIdentifiers)) {
-          const name = path.node.name;
-          const replacementIdentifier = replacementExpressions[name];
+        const replaceableIdentifiers = Object.values(replacementExpressions)
+          .map(({ from }) => from)
+          .filter((from): from is t.Identifier => t.isIdentifier(from));
+        if (isReplaceableIdentifier(path, replaceableIdentifiers)) {
+          const replacementIdentifier =
+            replacementExpressions[path.node.name].to;
           path.replaceWith(replacementIdentifier);
         }
       },
       MemberExpression(path) {
-        if (isReplaceableMemberExpression(path, replacementMemberExpressions)) {
+        const replaceableMemberExpressions = Object.values(
+          replacementExpressions,
+        )
+          .map(({ from }) => from)
+          .filter((from): from is t.MemberExpression =>
+            t.isMemberExpression(from),
+          );
+        if (isReplaceableMemberExpression(path, replaceableMemberExpressions)) {
           const replacementMemberExpression =
-            replacementExpressions[generator(path.node).code];
+            replacementExpressions[generator(path.node).code].to;
           path.replaceWith(replacementMemberExpression);
         }
       },
@@ -38,12 +39,14 @@ export default declare<Options>((api, options) => {
   };
 });
 
-function isReplaceableIdentifiers(
+function isReplaceableIdentifier(
   path: NodePath<t.Identifier>,
-  replacement: t.Identifier[],
+  replaceableIdentifiers: t.Identifier[],
 ) {
   return (
-    replacement.some((replace) => replace.name === path.node.name) &&
+    replaceableIdentifiers.some(
+      (replaceableIdentifier) => replaceableIdentifier.name === path.node.name,
+    ) &&
     !path.scope.hasBinding(path.node.name) &&
     !path.parentPath.isMemberExpression({ property: path.node }) &&
     !path.parentPath.isObjectProperty({ key: path.node }) &&
@@ -56,12 +59,12 @@ function isReplaceableIdentifiers(
 
 function isReplaceableMemberExpression(
   path: NodePath<t.MemberExpression>,
-  replacement: t.MemberExpression[],
+  replaceableMemberExpressions: t.MemberExpression[],
 ) {
   const deepestNodePath = getDeepestNodePath(path);
   return (
-    replacement.some((replace) =>
-      isMatchingMemberExpression(path.node, replace),
+    replaceableMemberExpressions.some((replaceableMemberExpression) =>
+      isMatchingMemberExpression(path.node, replaceableMemberExpression),
     ) &&
     t.isIdentifier(deepestNodePath.node) &&
     !deepestNodePath.scope.hasBinding(deepestNodePath.node.name) &&
@@ -100,16 +103,24 @@ function getDeepestNodePath(path: NodePath<t.MemberExpression>) {
   return deepestNodePath as NodePath<t.Node>;
 }
 
-function getReplacementExpressions(
-  replace: Record<string, string>,
-): Record<string, t.MemberExpression | t.Identifier> {
-  return Object.keys(replace).reduce(
-    (object, name) =>
-      Object.assign(object, {
-        [name]: parseToMemberExpressionOrIdentifier(replace[name]),
-      }),
-    {} as Record<string, t.MemberExpression | t.Identifier>,
-  );
+function getReplacementExpressions(replace: Record<string, string>) {
+  type ReplacementExpressions = Record<
+    string,
+    {
+      from: t.MemberExpression | t.Identifier;
+      to: t.MemberExpression | t.Identifier;
+    }
+  >;
+  return Object.keys(replace).reduce((acc, from) => {
+    const fromMemberExpressionOrIdentifier =
+      parseToMemberExpressionOrIdentifier(from);
+    return Object.assign(acc, {
+      [from]: {
+        from: fromMemberExpressionOrIdentifier,
+        to: parseToMemberExpressionOrIdentifier(replace[from]),
+      },
+    });
+  }, {} as ReplacementExpressions);
 }
 
 function parseToMemberExpressionOrIdentifier(
