@@ -158,5 +158,11 @@ pluginTester({
       `,
       snapshot: true,
     },
+    "export statement snapshot": {
+      code: `
+        export { window, document, self } from "test";
+      `,
+      snapshot: true,
+    },
   },
 });

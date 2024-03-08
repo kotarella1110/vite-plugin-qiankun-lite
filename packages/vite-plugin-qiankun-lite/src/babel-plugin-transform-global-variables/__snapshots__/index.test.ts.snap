@@ -291,3 +291,15 @@ self;
 process.env.TEST;
 
 `;
+
+exports[`unknown plugin > 11. export statement snapshot > 11. export statement snapshot 1`] = `
+
+
+export { window, document, self } from "test";
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+export { window, document, self } from "test";
+
+`;

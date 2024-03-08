@@ -2,13 +2,26 @@ import { type NodePath, types as t } from "@babel/core";
 import generator from "@babel/generator";
 import { declare } from "@babel/helper-plugin-utils";
 import { parse } from "@babel/parser";
+import { globalBrowserVariables } from "./globalBrowserVariables";
 
 type Options = {
   replace: Record<string, string>;
 };
 
 export default declare<Options>((api, options) => {
-  const replacementExpressions = getReplacementExpressions(options.replace);
+  const replace = {
+    ...globalBrowserVariables.reduce(
+      (acc, globalBrowserVariables) =>
+        Object.assign(acc, {
+          [globalBrowserVariables]: `${
+            options.replace.window ?? "window"
+          }.${globalBrowserVariables}`,
+        }),
+      {},
+    ),
+    ...options.replace,
+  };
+  const replacementExpressions = getReplacementExpressions(replace);
   return {
     visitor: {
       Identifier(path) {
@@ -53,7 +66,8 @@ function isReplaceableIdentifier(
     !path.parentPath.isObjectMethod({ key: path.node }) &&
     !path.parentPath.isClassProperty({ key: path.node }) &&
     !path.parentPath.isClassMethod({ key: path.node }) &&
-    !path.parentPath.isPrivateName({ id: path.node })
+    !path.parentPath.isPrivateName({ id: path.node }) &&
+    !path.parentPath.isExportSpecifier()
   );
 }
 
