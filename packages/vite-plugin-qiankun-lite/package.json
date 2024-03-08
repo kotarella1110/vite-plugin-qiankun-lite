@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.24.0",
+    "@babel/generator": "^7.23.6",
     "@babel/helper-plugin-utils": "^7.24.0",
     "@babel/parser": "^7.24.0",
     "babel-plugin-transform-globals": "^1.0.1",
@@ -56,6 +57,7 @@
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.6.8",
     "@types/babel__helper-plugin-utils": "^7.10.3",
     "babel-plugin-tester": "^11.0.4"
   }
