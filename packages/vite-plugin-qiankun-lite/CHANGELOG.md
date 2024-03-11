@@ -1,5 +1,11 @@
 # vite-plugin-qiankun-lite
 
+## 1.0.3
+
+### Patch Changes
+
+- [#9](https://github.com/kotarella1110/vite-plugin-qiankun-lite/pull/9) [`7f1899d`](https://github.com/kotarella1110/vite-plugin-qiankun-lite/commit/7f1899db730bfc74d55473df8d97d0277502e4b9) Thanks [@kotarella1110](https://github.com/kotarella1110)! - feat: automatically prefix global browser variables
+
 ## 1.0.2
 
 ### Patch Changes
