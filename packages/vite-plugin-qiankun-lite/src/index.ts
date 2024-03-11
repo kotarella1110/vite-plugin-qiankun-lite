@@ -1,4 +1,4 @@
-import { transformSync } from "@babel/core";
+import { transformAsync } from "@babel/core";
 import { type Cheerio, type Element, load } from "cheerio";
 import type { PluginOption, ResolvedConfig } from "vite";
 import plugin from "./babel-plugin-transform-global-variables";
@@ -73,7 +73,7 @@ export default function viteQiankun(opts: Options): PluginOption {
     {
       name: "qiankun:support-proxy",
       enforce: "post",
-      transform(code, id) {
+      async transform(code, id) {
         const filename = id.split("?")[0];
         const jsExts = [
           /\.[jt]sx?$/,
@@ -88,7 +88,7 @@ export default function viteQiankun(opts: Options): PluginOption {
         )
           return code;
 
-        return transformGlobalVariables(code, {
+        const result = await transformGlobalVariables(code, {
           replace: {
             ...Object.keys(config.define ?? []).reduce(
               (acc, key) => {
@@ -101,6 +101,13 @@ export default function viteQiankun(opts: Options): PluginOption {
           },
           addWindowPrefix: true,
         });
+
+        if (result?.code) {
+          return {
+            code: result.code,
+            map: result.map,
+          };
+        }
       },
     },
     {
@@ -166,10 +173,9 @@ function transformGlobalVariables(
   code: string,
   options: Parameters<typeof plugin>[1],
 ) {
-  const result = transformSync(code, {
+  return transformAsync(code, {
     plugins: [[plugin, options]],
   });
-  return result?.code;
 }
 
 function moduleScriptToGeneralScript(
