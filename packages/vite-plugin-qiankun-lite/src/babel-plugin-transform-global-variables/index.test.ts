@@ -164,5 +164,11 @@ pluginTester({
       `,
       snapshot: true,
     },
+    "optional chaining snapshot": {
+      code: `
+        test?.window;
+      `,
+      snapshot: true,
+    },
   },
 });

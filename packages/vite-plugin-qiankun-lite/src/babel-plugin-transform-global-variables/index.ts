@@ -62,6 +62,7 @@ function isReplaceableIdentifier(
     ) &&
     !path.scope.hasBinding(path.node.name) &&
     !path.parentPath.isMemberExpression({ property: path.node }) &&
+    !path.parentPath.isOptionalMemberExpression({ property: path.node }) &&
     !path.parentPath.isObjectProperty({ key: path.node }) &&
     !path.parentPath.isObjectMethod({ key: path.node }) &&
     !path.parentPath.isClassProperty({ key: path.node }) &&
@@ -82,7 +83,8 @@ function isReplaceableMemberExpression(
     ) &&
     t.isIdentifier(deepestNodePath.node) &&
     !deepestNodePath.scope.hasBinding(deepestNodePath.node.name) &&
-    !path.parentPath.isMemberExpression({ object: path.node })
+    !path.parentPath.isMemberExpression({ object: path.node }) &&
+    !path.parentPath.isOptionalMemberExpression({ object: path.node })
   );
 }
 

@@ -303,3 +303,15 @@ export { window, document, self } from "test";
 export { window, document, self } from "test";
 
 `;
+
+exports[`unknown plugin > 12. optional chaining snapshot > 12. optional chaining snapshot 1`] = `
+
+
+test?.window;
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+test?.window;
+
+`;
