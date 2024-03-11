@@ -7,9 +7,9 @@ pluginTester({
     replace: {
       document: '__TEST__["test"].document',
       window: "__TEST__.window",
-      self: "__TEST__.self",
       "process.env.TEST": "__TEST__.process.env.TEST",
     },
+    addWindowPrefix: true,
   } as Exclude<Parameters<typeof plugin>[1], null>,
   tests: {
     "console snapshot": {

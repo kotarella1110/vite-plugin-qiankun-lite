@@ -5,20 +5,22 @@ import { parse } from "@babel/parser";
 import { globalBrowserVariables } from "./globalBrowserVariables";
 
 type Options = {
-  replace: Record<string, string>;
+  replace?: Record<string, string>;
+  addWindowPrefix?: boolean;
 };
 
-export default declare<Options>((api, options) => {
+export default declare<Options>((api, options = {}) => {
   const replace = {
-    ...globalBrowserVariables.reduce(
-      (acc, globalBrowserVariables) =>
-        Object.assign(acc, {
-          [globalBrowserVariables]: `${
-            options.replace.window ?? "window"
-          }.${globalBrowserVariables}`,
-        }),
-      {},
-    ),
+    ...(options.addWindowPrefix &&
+      globalBrowserVariables.reduce(
+        (acc, globalBrowserVariables) =>
+          Object.assign(acc, {
+            [globalBrowserVariables]: `${
+              options.replace?.window ?? "window"
+            }.${globalBrowserVariables}`,
+          }),
+        {},
+      )),
     ...options.replace,
   };
   const replacementExpressions = getReplacementExpressions(replace);
