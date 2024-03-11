@@ -2,13 +2,28 @@ import { type NodePath, types as t } from "@babel/core";
 import generator from "@babel/generator";
 import { declare } from "@babel/helper-plugin-utils";
 import { parse } from "@babel/parser";
+import { globalBrowserVariables } from "./globalBrowserVariables";
 
 type Options = {
-  replace: Record<string, string>;
+  replace?: Record<string, string>;
+  addWindowPrefix?: boolean;
 };
 
-export default declare<Options>((api, options) => {
-  const replacementExpressions = getReplacementExpressions(options.replace);
+export default declare<Options>((api, options = {}) => {
+  const replace = {
+    ...(options.addWindowPrefix &&
+      globalBrowserVariables.reduce(
+        (acc, globalBrowserVariables) =>
+          Object.assign(acc, {
+            [globalBrowserVariables]: `${
+              options.replace?.window ?? "window"
+            }.${globalBrowserVariables}`,
+          }),
+        {},
+      )),
+    ...options.replace,
+  };
+  const replacementExpressions = getReplacementExpressions(replace);
   return {
     visitor: {
       Identifier(path) {
@@ -49,11 +64,13 @@ function isReplaceableIdentifier(
     ) &&
     !path.scope.hasBinding(path.node.name) &&
     !path.parentPath.isMemberExpression({ property: path.node }) &&
+    !path.parentPath.isOptionalMemberExpression({ property: path.node }) &&
     !path.parentPath.isObjectProperty({ key: path.node }) &&
     !path.parentPath.isObjectMethod({ key: path.node }) &&
     !path.parentPath.isClassProperty({ key: path.node }) &&
     !path.parentPath.isClassMethod({ key: path.node }) &&
-    !path.parentPath.isPrivateName({ id: path.node })
+    !path.parentPath.isPrivateName({ id: path.node }) &&
+    !path.parentPath.isExportSpecifier()
   );
 }
 
@@ -68,7 +85,8 @@ function isReplaceableMemberExpression(
     ) &&
     t.isIdentifier(deepestNodePath.node) &&
     !deepestNodePath.scope.hasBinding(deepestNodePath.node.name) &&
-    !path.parentPath.isMemberExpression({ object: path.node })
+    !path.parentPath.isMemberExpression({ object: path.node }) &&
+    !path.parentPath.isOptionalMemberExpression({ object: path.node })
   );
 }
 

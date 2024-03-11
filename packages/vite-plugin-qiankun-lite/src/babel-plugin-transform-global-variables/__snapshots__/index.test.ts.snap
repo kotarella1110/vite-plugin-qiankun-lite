@@ -13,7 +13,7 @@ console.log("process.env.TEST", process.env.TEST);
 
 console.log("window", __TEST__.window);
 console.log("document", __TEST__["test"].document);
-console.log("self", __TEST__.self);
+console.log("self", __TEST__.window.self);
 console.log("process.env.TEST", __TEST__.process.env.TEST);
 
 `;
@@ -70,7 +70,7 @@ exports[`unknown plugin > 3. IIFE snapshot > 3. IIFE snapshot 1`] = `
   document;
   self;
   process.env.TEST;
-})(__TEST__.window, __TEST__["test"].document, __TEST__.self);
+})(__TEST__.window, __TEST__["test"].document, __TEST__.window.self);
 
 `;
 
@@ -99,7 +99,7 @@ function test(window, document, self, process) {
 }
 __TEST__.window;
 __TEST__["test"].document;
-__TEST__.self;
+__TEST__.window.self;
 __TEST__.process.env.TEST;
 
 `;
@@ -160,7 +160,7 @@ self.addEventListener("xxx", () => {});
 
 __TEST__.window.addEventListener("xxx", () => {});
 __TEST__["test"].document.addEventListener("xxx", () => {});
-__TEST__.self.addEventListener("xxx", () => {});
+__TEST__.window.self.addEventListener("xxx", () => {});
 
 `;
 
@@ -205,9 +205,9 @@ const test1 = {
     return __TEST__["test"].document;
   },
   set document(document) {},
-  self: __TEST__.self,
+  self: __TEST__.window.self,
   get self() {
-    return __TEST__.self;
+    return __TEST__.window.self;
   },
   set self(self) {},
   "process.env.TEST": __TEST__.process.env.TEST,
@@ -215,7 +215,7 @@ const test1 = {
 const test2 = {
   window: __TEST__.window,
   document: __TEST__["test"].document,
-  self: __TEST__.self,
+  self: __TEST__.window.self,
 };
 
 `;
@@ -289,5 +289,29 @@ window;
 document;
 self;
 process.env.TEST;
+
+`;
+
+exports[`unknown plugin > 11. export statement snapshot > 11. export statement snapshot 1`] = `
+
+
+export { window, document, self } from "test";
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+export { window, document, self } from "test";
+
+`;
+
+exports[`unknown plugin > 12. optional chaining snapshot > 12. optional chaining snapshot 1`] = `
+
+
+test?.window;
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+test?.window;
 
 `;

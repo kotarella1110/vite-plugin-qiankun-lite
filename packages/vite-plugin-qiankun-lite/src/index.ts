@@ -97,11 +97,9 @@ export default function viteQiankun(opts: Options): PluginOption {
               },
               {} as Record<string, string>,
             ),
-            document: `__QIANKUN_WINDOW__["${opts.name}"].document`,
             window: `__QIANKUN_WINDOW__["${opts.name}"]`,
-            globalThis: `__QIANKUN_WINDOW__["${opts.name}"]`,
-            self: `__QIANKUN_WINDOW__["${opts.name}"]`,
           },
+          addWindowPrefix: true,
         });
       },
     },
