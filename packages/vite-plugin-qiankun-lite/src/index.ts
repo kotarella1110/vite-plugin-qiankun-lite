@@ -93,6 +93,9 @@ export default function viteQiankun(opts: Options): PluginOption {
             {} as Record<string, string>,
           ),
           window: `__QIANKUN_WINDOW__["${opts.name}"]`,
+          self: `__QIANKUN_WINDOW__["${opts.name}"]`,
+          globalThis: `__QIANKUN_WINDOW__["${opts.name}"]`,
+          document: `__QIANKUN_WINDOW__["${opts.name}"].document`,
         };
 
         if (Object.keys(replace).some((from) => code.includes(from))) return;
