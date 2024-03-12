@@ -1,4 +1,4 @@
-import { transformAsync } from "@babel/core";
+import type * as babelCore from "@babel/core";
 import { type Cheerio, type Element, load } from "cheerio";
 import type { PluginOption, ResolvedConfig } from "vite";
 import plugin from "./babel-plugin-transform-global-variables";
@@ -6,6 +6,9 @@ import plugin from "./babel-plugin-transform-global-variables";
 type Options = {
   name: string;
 };
+
+// lazy load babel since it's not used during build if plugins are not used
+let babel: typeof babelCore | undefined;
 
 export default function viteQiankun(opts: Options): PluginOption {
   let config: ResolvedConfig;
@@ -88,6 +91,7 @@ export default function viteQiankun(opts: Options): PluginOption {
         )
           return code;
 
+        const { transformAsync } = await loadBabelCore();
         const result = await transformAsync(code, {
           root: process.cwd(),
           filename: id,
@@ -178,6 +182,13 @@ export default function viteQiankun(opts: Options): PluginOption {
       },
     },
   ];
+}
+
+async function loadBabelCore() {
+  if (!babel) {
+    babel = await import("@babel/core");
+  }
+  return babel;
 }
 
 function moduleScriptToGeneralScript(
