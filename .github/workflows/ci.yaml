@@ -10,3 +10,9 @@ jobs:
       - uses: ./.github/composite-actions/setup-pnpm
       - run: pnpm check
       - run: pnpm build
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/composite-actions/setup-pnpm
+      - run: pnpm test
