@@ -107,7 +107,6 @@ export default function viteQiankun(opts: Options): PluginOption {
               plugin,
               {
                 replace,
-                addWindowPrefix: false,
               },
             ],
           ],
