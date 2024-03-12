@@ -82,11 +82,20 @@ export default function viteQiankun(opts: Options): PluginOption {
           /\.vue\?vue/,
           /\.svelte$/,
         ];
-        if (
-          !jsExts.some((reg) => reg.test(filepath)) ||
-          !/(document|window|globalThis|self)/g.test(code)
-        )
-          return code;
+        if (!jsExts.some((reg) => reg.test(filepath))) return;
+
+        const replace = {
+          ...Object.keys(config.define ?? []).reduce(
+            (acc, key) => {
+              acc[key] = `__QIANKUN_WINDOW__["${opts.name}"].${key}`;
+              return acc;
+            },
+            {} as Record<string, string>,
+          ),
+          window: `__QIANKUN_WINDOW__["${opts.name}"]`,
+        };
+
+        if (Object.keys(replace).some((from) => code.includes(from))) return;
 
         const result = await transformAsync(code, {
           root: process.cwd(),
@@ -97,16 +106,7 @@ export default function viteQiankun(opts: Options): PluginOption {
             [
               plugin,
               {
-                replace: {
-                  ...Object.keys(config.define ?? []).reduce(
-                    (acc, key) => {
-                      acc[key] = `__QIANKUN_WINDOW__["${opts.name}"].${key}`;
-                      return acc;
-                    },
-                    {} as Record<string, string>,
-                  ),
-                  window: `__QIANKUN_WINDOW__["${opts.name}"]`,
-                },
+                replace,
                 addWindowPrefix: true,
               },
             ],
