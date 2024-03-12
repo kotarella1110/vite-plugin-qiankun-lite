@@ -1,4 +1,4 @@
-import { transformSync } from "@babel/core";
+import { transformAsync } from "@babel/core";
 import { type Cheerio, type Element, load } from "cheerio";
 import type { PluginOption, ResolvedConfig } from "vite";
 import plugin from "./babel-plugin-transform-global-variables";
@@ -73,34 +73,52 @@ export default function viteQiankun(opts: Options): PluginOption {
     {
       name: "qiankun:support-proxy",
       enforce: "post",
-      transform(code, id) {
-        const filename = id.split("?")[0];
+      async transform(code, id) {
+        const [filepath] = id.split("?");
         const jsExts = [
           /\.[jt]sx?$/,
-          /\.(m)?js?$/,
+          /\.(c|m)?js?$/,
           /\.vue$/,
           /\.vue\?vue/,
           /\.svelte$/,
         ];
         if (
-          !jsExts.some((reg) => reg.test(filename)) ||
+          !jsExts.some((reg) => reg.test(filepath)) ||
           !/(document|window|globalThis|self)/g.test(code)
         )
           return code;
 
-        return transformGlobalVariables(code, {
-          replace: {
-            ...Object.keys(config.define ?? []).reduce(
-              (acc, key) => {
-                acc[key] = `__QIANKUN_WINDOW__["${opts.name}"].${key}`;
-                return acc;
+        const result = await transformAsync(code, {
+          root: process.cwd(),
+          filename: id,
+          sourceFileName: filepath,
+          sourceMaps: true,
+          plugins: [
+            [
+              plugin,
+              {
+                replace: {
+                  ...Object.keys(config.define ?? []).reduce(
+                    (acc, key) => {
+                      acc[key] = `__QIANKUN_WINDOW__["${opts.name}"].${key}`;
+                      return acc;
+                    },
+                    {} as Record<string, string>,
+                  ),
+                  window: `__QIANKUN_WINDOW__["${opts.name}"]`,
+                },
+                addWindowPrefix: true,
               },
-              {} as Record<string, string>,
-            ),
-            window: `__QIANKUN_WINDOW__["${opts.name}"]`,
-          },
-          addWindowPrefix: true,
+            ],
+          ],
         });
+
+        if (result?.code) {
+          return {
+            code: result.code,
+            map: result.map,
+          };
+        }
       },
     },
     {
@@ -160,16 +178,6 @@ export default function viteQiankun(opts: Options): PluginOption {
       },
     },
   ];
-}
-
-function transformGlobalVariables(
-  code: string,
-  options: Parameters<typeof plugin>[1],
-) {
-  const result = transformSync(code, {
-    plugins: [[plugin, options]],
-  });
-  return result?.code;
 }
 
 function moduleScriptToGeneralScript(
