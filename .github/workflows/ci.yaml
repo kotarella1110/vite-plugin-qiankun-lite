@@ -18,9 +18,14 @@ jobs:
       - run: pnpm test
   e2e-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sandbox: [true, false]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/composite-actions/setup-pnpm
+      - if: matrix.sandbox == true
+        run: echo 'SANDBOX=true' >> $GITHUB_ENV
       - run: pnpm e2e
       - uses: actions/upload-artifact@v4
         if: always()
