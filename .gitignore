@@ -184,6 +184,12 @@ dist
 
 .turbo
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 ### Node Patch ###
 # Serverless Webpack directories
 .webpack/
