@@ -17,6 +17,7 @@ jobs:
       - uses: ./.github/composite-actions/setup-pnpm
       - run: pnpm test
   e2e-test:
+    name: "e2e-test (sandbox: ${{ matrix.sandbox }})"
     runs-on: ubuntu-latest
     strategy:
       matrix:
