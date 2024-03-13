@@ -71,22 +71,22 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: [
     {
-      command: "pnpm --filter ...main-app dev",
+      command: "pnpm --filter main-app dev",
       url: "http://localhost:8000",
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: "pnpm --filter ...react-app dev",
+      command: "pnpm --filter react-app dev",
       url: "http://localhost:8001",
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: "pnpm --filter ...vue-app dev",
+      command: "pnpm --filter vue-app dev",
       url: "http://localhost:8002",
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: "pnpm --filter ...svelte-app dev",
+      command: "pnpm --filter svelte-app dev",
       url: "http://localhost:8003",
       reuseExistingServer: !process.env.CI,
     },
