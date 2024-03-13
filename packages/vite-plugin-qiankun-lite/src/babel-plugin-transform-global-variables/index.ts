@@ -1,5 +1,5 @@
 import { type NodePath, types as t } from "@babel/core";
-import generator from "@babel/generator";
+import { CodeGenerator } from "@babel/generator";
 import { declare } from "@babel/helper-plugin-utils";
 import { parse } from "@babel/parser";
 import { globalBrowserVariables } from "./globalBrowserVariables";
@@ -46,7 +46,8 @@ export default declare<Options>((api, options = {}) => {
           );
         if (isReplaceableMemberExpression(path, replaceableMemberExpressions)) {
           const replacementMemberExpression =
-            replacementExpressions[generator(path.node).code].to;
+            replacementExpressions[new CodeGenerator(path.node).generate().code]
+              .to;
           path.replaceWith(replacementMemberExpression);
         }
       },
