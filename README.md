@@ -27,7 +27,7 @@ import react from "@vitejs/plugin-react";
 import qiankun from "vite-plugin-qiankun-lite";
 
 export default defineConfig({
-  plugins: [react(), qiankun({ name: "sub-app" })],
+  plugins: [react(), qiankun({ name: "sub-app", sandbox: true })],
 });
 ```
 

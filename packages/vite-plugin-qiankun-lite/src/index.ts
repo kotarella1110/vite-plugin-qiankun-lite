@@ -5,11 +5,13 @@ import plugin from "./babel-plugin-transform-global-variables";
 
 type Options = {
   name: string;
+  sandbox?: boolean;
 };
 
 export default function viteQiankun(opts: Options): PluginOption {
   let config: ResolvedConfig;
-  let publicPath = `(__QIANKUN_WINDOW__["${opts.name}"].__INJECTED_PUBLIC_PATH_BY_QIANKUN__ || "")`;
+  const qiankunWindow = `__QIANKUN_WINDOW__["${opts.name}"]`;
+  let publicPath = `(${qiankunWindow}.__INJECTED_PUBLIC_PATH_BY_QIANKUN__ || "")`;
   return [
     {
       name: "qiankun:remain-exports",
@@ -71,28 +73,70 @@ export default function viteQiankun(opts: Options): PluginOption {
       },
     },
     {
-      name: "qiankun:support-proxy",
+      name: "qiankun:support-sandbox",
       enforce: "post",
       async transform(code, id) {
         const [filepath] = id.split("?");
-        const jsExts = [
-          /\.[jt]sx?$/,
-          /\.(c|m)?js?$/,
-          /\.vue$/,
-          /\.vue\?vue/,
-          /\.svelte$/,
-        ];
-        if (
-          !jsExts.some((reg) => reg.test(filepath)) ||
-          !/(document|window|globalThis|self)/g.test(code)
-        )
-          return code;
+        const jsExts = [/\.[jt]sx?$/, /\.(c|m)?js?$/, /\.vue$/, /\.svelte$/];
+        if (!jsExts.some((reg) => reg.test(filepath))) return;
 
-        const result = await transformAsync(code, {
+        const baseTransformOptions = {
           root: process.cwd(),
           filename: id,
           sourceFileName: filepath,
           sourceMaps: true,
+        };
+
+        if (!opts.sandbox) {
+          const qiankunGlobalVariables = [
+            "window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__",
+            "window.__POWERED_BY_QIANKUN__",
+          ];
+          if (
+            !qiankunGlobalVariables.some((qiankunGlobalVariable) =>
+              code.includes(qiankunGlobalVariable),
+            )
+          )
+            return;
+
+          const result = await transformAsync(code, {
+            ...baseTransformOptions,
+            plugins: [
+              [
+                plugin,
+                {
+                  replace: {
+                    ...qiankunGlobalVariables.reduce(
+                      (acc, qiankunGlobalVariable) => {
+                        acc[qiankunGlobalVariable] =
+                          qiankunGlobalVariable.replace(
+                            "window",
+                            qiankunWindow,
+                          );
+                        return acc;
+                      },
+                      {} as Record<string, string>,
+                    ),
+                  },
+                },
+              ],
+            ],
+          });
+
+          if (result?.code) {
+            return {
+              code: result.code,
+              map: result.map,
+            };
+          }
+
+          return;
+        }
+
+        if (!/(document|window|globalThis|self)/g.test(code)) return;
+
+        const result = await transformAsync(code, {
+          ...baseTransformOptions,
           plugins: [
             [
               plugin,
@@ -100,12 +144,12 @@ export default function viteQiankun(opts: Options): PluginOption {
                 replace: {
                   ...Object.keys(config.define ?? []).reduce(
                     (acc, key) => {
-                      acc[key] = `__QIANKUN_WINDOW__["${opts.name}"].${key}`;
+                      acc[key] = `${qiankunWindow}.${key}`;
                       return acc;
                     },
                     {} as Record<string, string>,
                   ),
-                  window: `__QIANKUN_WINDOW__["${opts.name}"]`,
+                  window: qiankunWindow,
                 },
                 addWindowPrefix: true,
               },
