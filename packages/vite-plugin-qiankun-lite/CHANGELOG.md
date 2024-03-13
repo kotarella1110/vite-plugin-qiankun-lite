@@ -1,5 +1,15 @@
 # vite-plugin-qiankun-lite
 
+## 1.1.0
+
+### Minor Changes
+
+- [#16](https://github.com/kotarella1110/vite-plugin-qiankun-lite/pull/16) [`4f119ec`](https://github.com/kotarella1110/vite-plugin-qiankun-lite/commit/4f119ec32653eddcb6e6c2ed1e240206b288d656) Thanks [@kotarella1110](https://github.com/kotarella1110)! - feat: add sandbox option
+
+### Patch Changes
+
+- [#12](https://github.com/kotarella1110/vite-plugin-qiankun-lite/pull/12) [`23f1742`](https://github.com/kotarella1110/vite-plugin-qiankun-lite/commit/23f1742d15ee46aef0f62d0946a2632e35716e42) Thanks [@kotarella1110](https://github.com/kotarella1110)! - feat: support babel plugin's sourcemap
+
 ## 1.0.3
 
 ### Patch Changes
