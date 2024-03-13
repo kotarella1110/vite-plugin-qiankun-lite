@@ -5,7 +5,7 @@ import { name } from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), qiankun({ name, sandbox: !!process.env.SANDBOX })],
+  plugins: [react(), qiankun({ name, sandbox: !!process.env.VITE_SANDBOX })],
   server: {
     cors: true,
     origin: "*",

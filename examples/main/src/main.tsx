@@ -76,7 +76,7 @@ registerMicroApps(
 
 setDefaultMountApp("/react");
 
-start({ sandbox: import.meta.env.SANDBOX });
+start({ sandbox: import.meta.env.VITE_SANDBOX });
 
 runAfterFirstMounted(() => {
   console.log(`[${name}] first app mounted`);

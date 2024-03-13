@@ -26,6 +26,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/composite-actions/setup-pnpm
       - if: matrix.sandbox == true
-        run: echo 'SANDBOX=true' >> $GITHUB_ENV
+        run: echo 'VITE_SANDBOX=true' >> $GITHUB_ENV
       - run: pnpm --filter vite-plugin-qiankun-lite build
       - run: pnpm e2e
