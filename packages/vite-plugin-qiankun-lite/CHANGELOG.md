@@ -1,5 +1,11 @@
 # vite-plugin-qiankun-lite
 
+## 1.1.1
+
+### Patch Changes
+
+- [#18](https://github.com/kotarella1110/vite-plugin-qiankun-lite/pull/18) [`3481043`](https://github.com/kotarella1110/vite-plugin-qiankun-lite/commit/34810439baff9cc76684effb20a6b6ee860e6bba) Thanks [@kotarella1110](https://github.com/kotarella1110)! - feat: improve sandbox performance
+
 ## 1.1.0
 
 ### Minor Changes
