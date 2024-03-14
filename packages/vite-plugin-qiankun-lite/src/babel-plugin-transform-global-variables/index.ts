@@ -91,9 +91,18 @@ function getDeepestNodePath(path: NodePath<t.MemberExpression>) {
   return deepestNodePath as NodePath<t.Node>;
 }
 
+const cachedExpressionMap = new Map<
+  string,
+  t.MemberExpression | t.Identifier
+>();
+
 function parseToMemberExpressionOrIdentifier(
   code: string,
 ): t.MemberExpression | t.Identifier {
+  const cachedExpression = cachedExpressionMap.get(code);
+  if (cachedExpression) {
+    return cachedExpression;
+  }
   const ast = parse(code);
   const statement = ast.program.body[0];
   if (!t.isExpressionStatement(statement)) {
@@ -103,5 +112,6 @@ function parseToMemberExpressionOrIdentifier(
   if (!t.isMemberExpression(expression) && !t.isIdentifier(expression)) {
     throw new Error("Expected MemberExpression or Identifier");
   }
+  cachedExpressionMap.set(code, expression);
   return expression;
 }
