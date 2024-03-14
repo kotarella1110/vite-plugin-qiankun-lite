@@ -122,15 +122,28 @@ function getDeepestNodePath(path: NodePath<t.MemberExpression>) {
   return deepestNodePath as NodePath<t.Node>;
 }
 
+type ReplacementExpressions = Record<
+  string,
+  {
+    from: t.MemberExpression | t.Identifier;
+    to: t.MemberExpression | t.Identifier;
+  }
+>;
+
+const cachedReplacementExpressionsMap = new Map<
+  string,
+  ReplacementExpressions
+>();
+
 function getReplacementExpressions(replace: Record<string, string>) {
-  type ReplacementExpressions = Record<
-    string,
-    {
-      from: t.MemberExpression | t.Identifier;
-      to: t.MemberExpression | t.Identifier;
-    }
-  >;
-  return Object.keys(replace).reduce((acc, from) => {
+  const stringifyReplace = JSON.stringify(replace);
+  const cachedReplacementExpressions =
+    cachedReplacementExpressionsMap.get(stringifyReplace);
+  if (cachedReplacementExpressions) {
+    return cachedReplacementExpressions;
+  }
+
+  const replacementExpressions = Object.keys(replace).reduce((acc, from) => {
     const fromMemberExpressionOrIdentifier =
       parseToMemberExpressionOrIdentifier(from);
     return Object.assign(acc, {
@@ -140,6 +153,10 @@ function getReplacementExpressions(replace: Record<string, string>) {
       },
     });
   }, {} as ReplacementExpressions);
+
+  cachedReplacementExpressionsMap.set(stringifyReplace, replacementExpressions);
+
+  return replacementExpressions;
 }
 
 function parseToMemberExpressionOrIdentifier(
