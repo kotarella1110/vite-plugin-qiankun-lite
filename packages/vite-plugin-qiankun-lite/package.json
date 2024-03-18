@@ -52,7 +52,8 @@
     "@babel/helper-plugin-utils": "^7.24.0",
     "@babel/parser": "^7.24.0",
     "babel-plugin-transform-globals": "^1.0.1",
-    "cheerio": "1.0.0-rc.12"
+    "cheerio": "1.0.0-rc.12",
+    "vite-plugin-index-html": "^2.0.2"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",

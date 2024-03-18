@@ -5,7 +5,14 @@ import { name } from "./package.json";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), qiankun({ name, sandbox: !!process.env.VITE_SANDBOX })],
+  plugins: [
+    vue(),
+    qiankun({
+      name,
+      entry: "src/main.ts",
+      sandbox: !!process.env.VITE_SANDBOX,
+    }),
+  ],
   server: {
     cors: true,
     origin: "*",

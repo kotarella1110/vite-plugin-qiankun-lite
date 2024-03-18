@@ -1,10 +1,18 @@
 import { transformAsync } from "@babel/core";
 import { type Cheerio, type Element, load } from "cheerio";
 import type { PluginOption, ResolvedConfig } from "vite";
+import htmlPluginOrg from "vite-plugin-index-html";
 import plugin from "./babel-plugin-transform-global-variables";
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const createHtmlPlugin: typeof htmlPluginOrg = (htmlPluginOrg as any).default
+  ? // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    (htmlPluginOrg as any).default
+  : htmlPluginOrg;
 
 type Options = {
   name: string;
+  entry: string;
   sandbox?: boolean;
 };
 
@@ -12,22 +20,34 @@ export default function viteQiankun(opts: Options): PluginOption {
   let config: ResolvedConfig;
   const qiankunWindow = `__QIANKUN_WINDOW__["${opts.name}"]`;
   let publicPath = `(${qiankunWindow}.__INJECTED_PUBLIC_PATH_BY_QIANKUN__ || "")`;
+  const htmlPlugin = createHtmlPlugin({
+    entry: opts.entry,
+    preserveEntrySignatures: "strict",
+  });
   return [
     {
-      name: "qiankun:remain-exports",
-      enforce: "post",
+      ...htmlPlugin,
+      name: "qiankun:umd-build",
       apply: "build",
-      options(options) {
-        return {
-          ...options,
-          preserveEntrySignatures: "strict",
-        };
-      },
-      transform(code, id) {
-        if (id.endsWith("html") && this.getModuleInfo(id)?.isEntry) {
-          return code.replace(/import/g, "export * from");
-        }
-        return null;
+      config(config, env) {
+        if (typeof htmlPlugin.config === "function")
+          return htmlPlugin.config(
+            {
+              ...config,
+              build: {
+                ...config.build,
+                minify: false,
+                rollupOptions: {
+                  output: {
+                    ...config?.build?.rollupOptions?.output,
+                    name: opts.name,
+                    format: "umd",
+                  },
+                },
+              },
+            },
+            env,
+          );
       },
     },
     {
@@ -75,6 +95,7 @@ export default function viteQiankun(opts: Options): PluginOption {
     {
       name: "qiankun:support-sandbox",
       enforce: "post",
+      apply: "serve",
       async transform(code, id) {
         const [filepath] = id.split("?");
         const jsExts = [/\.[jt]sx?$/, /\.(c|m)?js?$/, /\.vue$/, /\.svelte$/];
@@ -168,6 +189,7 @@ export default function viteQiankun(opts: Options): PluginOption {
     {
       name: "qiankun:html-transform",
       enforce: "post",
+      apply: "serve",
       configResolved(resolvedConfig) {
         config = resolvedConfig;
         if (config.base) {
