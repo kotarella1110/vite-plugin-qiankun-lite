@@ -25,33 +25,31 @@ export default function viteQiankun(opts: Options): PluginOption {
     preserveEntrySignatures: "strict",
   });
   return [
-    (() => {
-      return {
-        ...htmlPlugin,
-        name: "qiankun:umd-build",
-        apply: "build",
-        config(config, env) {
-          if (typeof htmlPlugin.config === "function")
-            return htmlPlugin.config(
-              {
-                ...config,
-                build: {
-                  ...config.build,
-                  minify: false,
-                  rollupOptions: {
-                    output: {
-                      ...config?.build?.rollupOptions?.output,
-                      name: opts.name,
-                      format: "umd",
-                    },
+    {
+      ...htmlPlugin,
+      name: "qiankun:umd-build",
+      apply: "build",
+      config(config, env) {
+        if (typeof htmlPlugin.config === "function")
+          return htmlPlugin.config(
+            {
+              ...config,
+              build: {
+                ...config.build,
+                minify: false,
+                rollupOptions: {
+                  output: {
+                    ...config?.build?.rollupOptions?.output,
+                    name: opts.name,
+                    format: "umd",
                   },
                 },
               },
-              env,
-            );
-        },
-      };
-    })(),
+            },
+            env,
+          );
+      },
+    },
     {
       name: "qiankun:vite-module-script-transform",
       enforce: "post",
