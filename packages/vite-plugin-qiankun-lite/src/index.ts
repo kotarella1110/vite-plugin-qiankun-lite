@@ -25,7 +25,10 @@ export default function viteQiankun(opts: Options): PluginOption {
       },
       transform(code, id) {
         if (id.endsWith("html") && this.getModuleInfo(id)?.isEntry) {
-          return code.replace(/import/g, "export * from");
+          return code.replace(
+            /import\s+(['"])([^'"]+\.(m?js|[jt]sx?))\1/g,
+            "export * from $1$2$1",
+          );
         }
         return null;
       },
