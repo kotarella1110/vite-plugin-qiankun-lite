@@ -59,5 +59,8 @@
     "@types/babel__generator": "^7.6.8",
     "@types/babel__helper-plugin-utils": "^7.10.3",
     "babel-plugin-tester": "^11.0.4"
+  },
+  "peerDependencies": {
+    "vite": ">= 4 < 6"
   }
 }
