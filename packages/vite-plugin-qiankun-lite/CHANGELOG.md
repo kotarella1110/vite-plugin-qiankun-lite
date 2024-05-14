@@ -1,5 +1,11 @@
 # vite-plugin-qiankun-lite
 
+## 1.1.2
+
+### Patch Changes
+
+- [#23](https://github.com/kotarella1110/vite-plugin-qiankun-lite/pull/23) [`49f11e5`](https://github.com/kotarella1110/vite-plugin-qiankun-lite/commit/49f11e55b780a356048bb08f074aab5479aa3269) Thanks [@kotarella1110](https://github.com/kotarella1110)! - fix: fix remain-exports plugin to support vite v4
+
 ## 1.1.1
 
 ### Patch Changes
