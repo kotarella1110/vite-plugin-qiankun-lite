@@ -1,5 +1,11 @@
 # vite-plugin-qiankun-lite
 
+## 1.2.0
+
+### Minor Changes
+
+- [#28](https://github.com/kotarella1110/vite-plugin-qiankun-lite/pull/28) [`5b97721`](https://github.com/kotarella1110/vite-plugin-qiankun-lite/commit/5b97721e5699075a6dcf7356b43be9cfd0af10b3) Thanks [@kotarella1110](https://github.com/kotarella1110)! - feat: Vite v6 support
+
 ## 1.1.2
 
 ### Patch Changes
