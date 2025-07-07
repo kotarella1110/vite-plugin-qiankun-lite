@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         sandbox: [true, false]
-        vite-version: [^5, ^6]
+        vite-version: [^5, ^6, ^7]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/composite-actions/setup-pnpm
